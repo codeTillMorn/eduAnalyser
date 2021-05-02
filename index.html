@@ -1,0 +1,155 @@
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        .rectangle {
+            position: absolute;
+            width: 1540px;
+            height: 115px;
+            left: 0px;
+            top: -4px;
+
+            background: #3acf77;
+        }
+        .rectangle1 {
+            position: absolute;
+            width: 1360px;
+            height: 693px;
+            left: 40px;
+            top: 200px;
+
+            background: #E9E9E9;
+        }
+        h1 {
+            position: absolute;
+            width: 361px;
+            height: 60px;
+            left: 630px;
+
+            font-family: Poppins;
+            font-style: normal;
+            font-weight: bold;
+            font-size: 48px;
+            line-height: 72px;
+            color: #FFFFFF;
+        }
+        .center{
+            text-align: center; 
+        }
+        #logo{
+            align-items: center;
+           
+        }
+    </style>
+    <title>EduTracker</title>
+    <script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/brython@3.9.0/brython.min.js">
+    </script>
+</head>
+
+<body>
+    <div class = "rectangle"><h1>Edu-Analyzer</h1></div>
+    <br></br>
+    <br></br>
+    <br></br>
+    <div class="center"><img id="logo" src="logo.jpeg" alt="EduAnalyzer got a magic wand" width="100" height="100"></div>
+    <h2>Helping teachers better support students virtually with data</h2>
+    <p>During the COVID-19 pandemic, students could be going through the most difficult times in their life and teachers would not know. 
+        By using our file transcription and analysis service, teachers can quickly track students engagement in class, using various informative metrics. This gives the teacher a solid understanding of how well each of their students are staying engaged throughout class.This also allows teachers to reach out to students who are consistently unengaged, and have an open discussion with them about how they’re doing and ways that the teacher can support them better.</p>
+    <div class="center"><input placeholder="Upload recording" id="recording" type="file">
+    <button id="submit" onclick="brython()" style="background-color: #FFB74D;">Submit</button></div>
+<!--<button id="getNames">Get names</button>-->
+<!--<button id="getStats">Get stats</button>-->
+    <!-- <script>
+        // const getNames = document.getElementById("getNames");
+        // const getStats = document.getElementById("getStats");
+        const send = document.getElementById("submit");
+        const recording = document.getElementById("recording");
+        // getStats.addEventListener("click", function() {
+        //     fetch("/getStats").then(res => {
+        //         res.json().then(res => {
+        //             console.log(res);
+        //         })
+        //     });
+        // });
+        // getNames.addEventListener("click", function() {
+        //     fetch("/getNames").then(res => {res.json().then(res => {
+        //         console.log(res.names);
+        //     })});
+        // });
+        send.addEventListener("click", function () {
+            let formData = new FormData();
+            console.log("im in function")
+            formData.append('recording', recording.files[0]);
+            fetch('/uploadAudio', {
+                method: "POST",
+                body: formData
+            }).then(res => {
+                window.location.href = 'home_page.html';
+            })
+        });
+    </script> -->
+    <script type="text/python">
+        # importing libraries 
+ from browser import document
+import speech_recognition as sr 
+import os 
+from pydub import AudioSegment
+from pydub.silence import split_on_silence
+
+                # create a speech recognition object
+r = sr.Recognizer()
+document <= "It is running fine !"
+ 
+             # a function that splits the audio file into chunks
+            # and applies speech recognition
+def get_large_audio_transcription(path):
+              """
+                Splitting the large audio file into chunks
+                   and apply speech recognition on each of these chunks
+             """
+                          # open the audio file using pydub
+    sound = AudioSegment.from_wav(path)  
+              # split audio sound where silence is 700 miliseconds or more and get chunks
+    chunks = split_on_silence(sound,
+                       # experiment with this value for your target audio file
+        min_silence_len = 500,
+                                     # adjust this per requirement
+        silence_thresh = sound.dBFS-14,
+                         # keep the silence for 1 second, adjustable as well
+        keep_silence=500,
+    )
+    folder_name = "audio-chunks"
+                          # create a directory to store the audio chunks
+    if not os.path.isdir(folder_name):
+        os.mkdir(folder_name)
+    whole_text = ""
+                                       # process each chunk 
+    for i, audio_chunk in enumerate(chunks, start=1):
+                                     # export audio chunk and save it in
+                                       # the `folder_name` directory.
+        chunk_filename = os.path.join(folder_name, f"chunk{i}.wav")
+        audio_chunk.export(chunk_filename, format="wav")
+                                                      # recognize the chunk
+        with sr.AudioFile(chunk_filename) as source:
+            audio_listened = r.record(source)
+                                                    # try converting it to text
+            try:
+                text = r.recognize_google(audio_listened)
+            except sr.UnknownValueError as e:
+                print("Error:", str(e))
+            else:
+                text = f"{text.capitalize()}. "
+                #print(chunk_filename, ":", text)
+                whole_text += text
+                                                   # return the text for all chunks detected
+    return whole_text
+path = "audio1.wav"
+text=get_large_audio_transcription(path)
+print(len(text.split()))
+print("\nFull text:", text)
+
+</script>
+</body>
+</html>
