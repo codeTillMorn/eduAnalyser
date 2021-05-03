@@ -42,7 +42,7 @@
            
         }
     </style>
-    <title>EduTracker</title>
+    <title>Edu-Analyzer</title>
     <script type="text/javascript"
         src="https://cdn.jsdelivr.net/npm/brython@3.9.0/brython.min.js">
     </script>
@@ -58,7 +58,12 @@
     <p>During the COVID-19 pandemic, students could be going through the most difficult times in their life and teachers would not know. 
         By using our file transcription and analysis service, teachers can quickly track students engagement in class, using various informative metrics. This gives the teacher a solid understanding of how well each of their students are staying engaged throughout class.This also allows teachers to reach out to students who are consistently unengaged, and have an open discussion with them about how they’re doing and ways that the teacher can support them better.</p>
     <div class="center"><input placeholder="Upload recording" id="recording" type="file">
-    <button id="submit" onclick="brython()" style="background-color: #FFB74D;">Submit</button></div>
+    <button id="start" style="background-color: #FFB74D;">start</button></div>
+    <h5 id="instructions"> instructions :</h5>
+    <h5 id="words"> word count :</h5>
+    <div class="input">
+        <textarea id="textbox" rows="6"></textarea>
+    </div> 
 <!--<button id="getNames">Get names</button>-->
 <!--<button id="getStats">Get stats</button>-->
     <!-- <script>
@@ -90,65 +95,64 @@
             })
         });
     </script> -->
-    <script type="text/python">
-        # importing libraries 
- from browser import document
-import speech_recognition as sr 
-import os 
-from pydub import AudioSegment
-from pydub.silence import split_on_silence
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript">
 
-                # create a speech recognition object
-r = sr.Recognizer()
-document <= "It is running fine !"
- 
-             # a function that splits the audio file into chunks
-            # and applies speech recognition
-def get_large_audio_transcription(path):
-              """
-                Splitting the large audio file into chunks
-                   and apply speech recognition on each of these chunks
-             """
-                          # open the audio file using pydub
-    sound = AudioSegment.from_wav(path)  
-              # split audio sound where silence is 700 miliseconds or more and get chunks
-    chunks = split_on_silence(sound,
-                       # experiment with this value for your target audio file
-        min_silence_len = 500,
-                                     # adjust this per requirement
-        silence_thresh = sound.dBFS-14,
-                         # keep the silence for 1 second, adjustable as well
-        keep_silence=500,
-    )
-    folder_name = "audio-chunks"
-                          # create a directory to store the audio chunks
-    if not os.path.isdir(folder_name):
-        os.mkdir(folder_name)
-    whole_text = ""
-                                       # process each chunk 
-    for i, audio_chunk in enumerate(chunks, start=1):
-                                     # export audio chunk and save it in
-                                       # the `folder_name` directory.
-        chunk_filename = os.path.join(folder_name, f"chunk{i}.wav")
-        audio_chunk.export(chunk_filename, format="wav")
-                                                      # recognize the chunk
-        with sr.AudioFile(chunk_filename) as source:
-            audio_listened = r.record(source)
-                                                    # try converting it to text
-            try:
-                text = r.recognize_google(audio_listened)
-            except sr.UnknownValueError as e:
-                print("Error:", str(e))
-            else:
-                text = f"{text.capitalize()}. "
-                #print(chunk_filename, ":", text)
-                whole_text += text
-                                                   # return the text for all chunks detected
-    return whole_text
-path = "audio1.wav"
-text=get_large_audio_transcription(path)
-print(len(text.split()))
-print("\nFull text:", text)
+        var SpeechRecognition = window.webkitSpeechRecognition; 
+  
+  var recognition = new SpeechRecognition();
+  
+  var Textbox = document.getElementById('textbox');
+  var instructions =document.getElementById('instructions');
+  
+  var Content = '';
+  
+  recognition.continuous = true;
+  
+  recognition.onresult = function(event) {
+  
+    var current = event.resultIndex;
+  
+    var transcript = event.results[current][0].transcript;
+   
+      Content += transcript;
+      Textbox.innerHTML = Content;
+    //   console.log(Content);
+    
+  };
+  
+  recognition.onstart = function() { 
+    instructions.innerHTML = 'Voice recognition is ON.';
+  }
+  
+  recognition.onspeechend = function() {
+    instructions.innerHTML='No activity.';
+    words.innerHTML += countWords(Content);
+  }
+  
+  recognition.onerror = function(event) {
+    if(event.error == 'no-speech') {
+      instructions.innerHTML='Try again.';  
+    }
+  }
+  
+  $('#start').on('click', function(e) {
+    if (Content.length) {
+      Content += ' ';
+    }
+    recognition.start();
+  });
+  
+//   Textbox.on('input', function() {
+//     Content = $(this).val();
+//   });
+
+function countWords(str) {
+         str = str.replace(/(^\s*)|(\s*$)/gi,"");
+         str = str.replace(/[ ]{2,}/gi," ");
+         str = str.replace(/\n /,"\n");
+         return str.split(' ').length;
+      }
 
 </script>
 </body>
