@@ -58,7 +58,8 @@
     <p>During the COVID-19 pandemic, students could be going through the most difficult times in their life and teachers would not know. 
         By using our file transcription and analysis service, teachers can quickly track students engagement in class, using various informative metrics. This gives the teacher a solid understanding of how well each of their students are staying engaged throughout class.This also allows teachers to reach out to students who are consistently unengaged, and have an open discussion with them about how they’re doing and ways that the teacher can support them better.</p>
     <div class="center"><input placeholder="Upload recording" id="recording" type="file">
-    <button id="start" style="background-color: #FFB74D;">start</button></div>
+    <button id="start" style="background-color: #FFB74D;">start</button>
+    <button id="stop" style="background-color: red;">stop</button></div>
     <h5 id="instructions"> instructions :</h5>
     <h5 id="words"> word count :</h5>
     <div class="input">
@@ -111,13 +112,13 @@
   
   recognition.onresult = function(event) {
   
-    var current = event.resultIndex;
-  
-    var transcript = event.results[current][0].transcript;
-   
-      Content += transcript;
-      Textbox.innerHTML = Content;
-    //   console.log(Content);
+          var current = event.resultIndex;
+        
+          var transcript = event.results[current][0].transcript;
+        
+            Content += transcript;
+            Textbox.innerHTML = Content;
+          //   console.log(Content);
     
   };
   
@@ -128,6 +129,13 @@
   recognition.onspeechend = function() {
     instructions.innerHTML='No activity.';
     words.innerHTML += countWords(Content);
+    // import { jsPDF } from "jspdf";
+
+// Default export is a4 paper, portrait, using millimeters for units
+const doc = new jsPDF();
+
+doc.text(Content, 10, 10);
+doc.save("a4.pdf");
   }
   
   recognition.onerror = function(event) {
@@ -141,6 +149,10 @@
       Content += ' ';
     }
     recognition.start();
+  });
+  $('#stop').on('click', function(e) {
+   
+    recognition.onspeechend();
   });
   
 //   Textbox.on('input', function() {
